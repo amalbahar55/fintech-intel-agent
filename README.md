@@ -3,7 +3,7 @@
 ## Problem
 B2B fintech marketing teams are flying blind on competitor movements. 
 Monitoring 10+ competitors across news, product updates, and positioning 
-changes is a manual, inconsistent process — typically done ad hoc when 
+changes is a manual, inconsistent process, typically done ad hoc when 
 someone happens to notice something.
 
 ## What This Agent Does
@@ -21,9 +21,9 @@ competitive heat map, GTM actions, and operator recommendations
 Adyen, PayPal, Braintree, Checkout.com, Airwallex, Rapyd, Block, Wise Business
 
 ## Design Decisions
-- **Human-in-the-loop by default** — digest saves to Notion for human review before any GTM action is taken. Autonomy level is read-only: the agent observes and recommends, never acts.
-- **Transparent outputs** — every digest is dated and stored, creating an audit trail of signals and recommendations over time.
-- **Explicit "So what?" layer** — every signal must answer why a fintech operator should care, reducing the gap between information and decision.
+- **Human-in-the-loop by default** : digest saves to Notion for human review before any GTM action is taken. Autonomy level is read-only: the agent observes and recommends, never acts.
+- **Transparent outputs** : every digest is dated and stored, creating an audit trail of signals and recommendations over time.
+- **Explicit "So what?" layer** : every signal must answer why a fintech operator should care, reducing the gap between information and decision.
 
 ## Tech Stack
 - Claude API (Anthropic): LLM reasoning layer
