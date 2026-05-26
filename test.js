@@ -24,6 +24,12 @@ async function fetchNews() {
 async function saveToNotion(digest) {
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   
+  // Split digest into chunks of 1900 characters
+  const chunks = [];
+  for (let i = 0; i < digest.length; i += 1900) {
+    chunks.push(digest.slice(i, i + 1900));
+  }
+
   await notion.pages.create({
     parent: { page_id: process.env.NOTION_PAGE_ID },
     properties: {
@@ -31,15 +37,13 @@ async function saveToNotion(digest) {
         title: [{ text: { content: `Digest — ${today}` } }]
       }
     },
-    children: [
-      {
-        object: "block",
-        type: "paragraph",
-        paragraph: {
-          rich_text: [{ type: "text", text: { content: digest } }]
-        }
+    children: chunks.map(chunk => ({
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [{ type: "text", text: { content: chunk } }]
       }
-    ]
+    }))
   });
 
   console.log("✅ Saved to Notion successfully");
@@ -55,28 +59,46 @@ async function run() {
     messages: [
       {
         role: "user",
-        content: `You are a competitive intelligence analyst for a B2B payments company competing with Adyen, PayPal, Braintree, Checkout.com, Airwallex, Rapyd, Block, and Wise Business.
+        content: `You are a senior competitive intelligence analyst for a B2B payments company competing with Adyen, PayPal, Braintree, Checkout.com, Airwallex, Rapyd, Block, and Wise Business.
 
 Here are the latest news articles:
 ${news}
 
-Produce a structured weekly competitive digest with this format:
+Produce a structured weekly competitive digest. For EVERY insight, you must answer "So what?" — why should a fintech operator actually care about this signal?
 
 ## COMPETITIVE INTELLIGENCE DIGEST
 
 ### 🔴 HIGH PRIORITY SIGNALS
-(Signals requiring immediate GTM response — pricing changes, major product launches, enterprise wins)
+Format each signal as:
+**[Competitor] — [What happened]**
+So what: [Why a fintech operator should care — be specific about implications for sales positioning, pricing, customer retention, or market share]
 
 ### 🟡 MEDIUM PRIORITY SIGNALS
-(Market moves worth tracking — partnerships, geographic expansion, funding)
+Same format. Focus on moves worth tracking but not acting on immediately.
 
 ### 🟢 MARKET CONTEXT
-(Broader trends affecting the competitive landscape)
+Broader trends with operator implications. Each point must answer: what does this mean for B2B payments GTM strategy?
 
-### 💡 GTM IMPLICATIONS
-For each high priority signal, add one line: what should sales/marketing do differently this week?
+### 💡 GTM ACTIONS THIS WEEK
+3 specific actions a marketing or sales team should take based on this week's signals. Be concrete — not "monitor competitors" but "update battle card for Airwallex enterprise pitch to include X".
 
-Keep each signal to 2-3 sentences max. Be specific about which competitor. Flag if data is unavailable.`
+### 🌡️ COMPETITIVE HEAT
+Rate each competitor this week:
+- Adyen: [Accelerating / Steady / Stagnating] — one line reason
+- PayPal/Braintree: [Accelerating / Steady / Stagnating] — one line reason
+- Checkout.com: [Accelerating / Steady / Stagnating] — one line reason
+- Airwallex: [Accelerating / Steady / Stagnating] — one line reason
+- Block: [Accelerating / Steady / Stagnating] — one line reason
+- Wise Business: [Accelerating / Steady / Stagnating] — one line reason
+- Rapyd: [Accelerating / Steady / Stagnating] — one line reason
+
+If insufficient data, say "Insufficient signal this week" rather than guessing.
+
+### 🤔 SO WHAT FOR THE OPERATOR
+In 3 bullet points, answer this for a B2B fintech marketing leader:
+- What does this week's signal landscape mean for positioning?
+- What assumption about competitors should we update?
+- What should we stop, start, or double down on this week?`
       }
     ]
   });
@@ -85,5 +107,4 @@ Keep each signal to 2-3 sentences max. Be specific about which competitor. Flag 
   console.log(digest);
   await saveToNotion(digest);
 }
-
 run();
