@@ -1,6 +1,7 @@
 require('dotenv').config();
 const Anthropic = require("@anthropic-ai/sdk");
 const { Client } = require("@notionhq/client");
+const cron = require('node-cron');
 
 const client = new Anthropic.Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
@@ -107,4 +108,13 @@ In 3 bullet points, answer this for a B2B fintech marketing leader:
   console.log(digest);
   await saveToNotion(digest);
 }
+// Run immediately on start
 run();
+
+// Then run every day at 8:00 AM
+cron.schedule('0 8 * * *', () => {
+  console.log('Running scheduled digest...');
+  run();
+});
+
+console.log('Agent running. Daily digest scheduled for 8:00 AM.');
